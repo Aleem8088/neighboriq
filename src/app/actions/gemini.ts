@@ -1,12 +1,8 @@
 "use server";
 
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 
-// @ts-expect-error - as requested, overriding default constructor signature
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "", {
-    apiVersion: "v1"
-});
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
 
 export async function generateReportSummary(address: string, safetyScore: number, crimeIncidents: number, activePermits: number, newsSentiment: number) {
     try {
@@ -24,8 +20,11 @@ Write a 2-sentence neighborhood summary that:
 
 Be specific, factual, and helpful. No fluff.`;
 
-        const result = await model.generateContent(prompt);
-        const text = result.response.text();
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: prompt,
+        });
+        const text = response.text || "";
         return { success: true, text: text.trim() };
     } catch (error) {
         console.error("Gemini AI Error:", error);
@@ -38,8 +37,11 @@ export async function generateTruthInsight() {
         // Hardcoded stats based on prompt spec, realistically would be passed in
         const prompt = `Montgomery neighborhood data shows crime is down 12% officially, but news sentiment score is 65/100 (slightly negative). In one sentence, explain what this gap means for residents and why it might exist.`;
 
-        const result = await model.generateContent(prompt);
-        const text = result.response.text();
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: prompt,
+        });
+        const text = response.text || "";
         return { success: true, text: text.trim() };
     } catch (error) {
         console.error("Gemini AI Error:", error);
@@ -49,19 +51,16 @@ export async function generateTruthInsight() {
 
 export async function chatNeighborIQ(message: string, history: { role: string; parts: { text: string }[] }[], contextStats: string) {
     try {
-        const chatModel = genAI.getGenerativeModel({
-            model: "gemini-1.5-flash",
-            systemInstruction: `You are NeighborIQ, a civic AI assistant for Montgomery, Alabama. You help residents understand their neighborhood using official city data. 
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: [{ role: "user", parts: [{ text: message }] }],
+            config: {
+                systemInstruction: `You are NeighborIQ, a civic AI assistant for Montgomery, Alabama. You help residents understand their neighborhood using official city data. 
 Be helpful, specific, and concise. If asked about safety, reference that crime data shows ${contextStats}. 
 If asked about development, reference that there are active permits nearby. No fluff.`
+            }
         });
-
-        const chat = chatModel.startChat({
-            history: history
-        });
-
-        const result = await chat.sendMessage(message);
-        const text = result.response.text();
+        const text = response.text || "";
         return { success: true, text: text.trim() };
     } catch (error) {
         console.error("Gemini AI Chat Error:", error);
@@ -71,20 +70,26 @@ If asked about development, reference that there are active permits nearby. No f
 
 export async function classifyIssuePhoto(base64Data: string, mimeType: string) {
     try {
-        const visionModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-        const prompt = `Look at this photo of a city issue. 
+        const promptText = `Look at this photo of a city issue. 
 Classify it as one of: pothole, broken streetlight, graffiti, illegal dumping, damaged sidewalk, flooding, fallen tree, broken bench, other.
 Return JSON strictly in this format: {"type": "string", "confidence": number, "description": "string", "priority": "low"|"medium"|"high"}`;
 
-        const imagePart = {
-            inlineData: {
-                data: base64Data,
-                mimeType
-            }
-        };
-
-        const result = await visionModel.generateContent([prompt, imagePart]);
-        const text = result.response.text();
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: [{
+                role: "user",
+                parts: [
+                    { text: promptText },
+                    {
+                        inlineData: {
+                            data: base64Data,
+                            mimeType: mimeType
+                        }
+                    }
+                ]
+            }]
+        });
+        const text = response.text || "";
 
         // Clean up markdown JSON block if present
         const jsonStr = text.replace(/```json/gi, '').replace(/```/g, '').trim();
