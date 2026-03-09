@@ -2,26 +2,203 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ─── Dark Theme (default) ─────────────────────────────── */
+:root,
+.dark {
+  --background: #050505;
+  --foreground: #ffffff;
+  --primary: #22c55e;
+  --primary-dark: #16a34a;
+  --card: rgba(20, 20, 20, 0.4);
+  --card-hover: rgba(30, 30, 30, 0.6);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(255, 255, 255, 0.15);
+  --text-primary: #ffffff;
+  --text-secondary: #a1a1aa;
+  --input-bg: rgba(10, 10, 10, 0.6);
+  --overlay: rgba(5, 5, 5, 0.85);
+  --glass-bg: rgba(15, 15, 15, 0.6);
+  --shadow-color: rgba(0, 0, 0, 0.8);
+  --map-tiles: dark;
+  --dot-color: rgba(255, 255, 255, 0.1);
+  --badge-bg: rgba(0, 0, 0, 0.7);
+  --score-bar-bg: #1a1a1a;
+  --glass-edge: rgba(255, 255, 255, 0.12);
+  --premium-gradient: linear-gradient(145deg, rgba(34, 197, 94, 0.1) 0%, rgba(0, 0, 0, 0) 100%);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ─── Light Theme ──────────────────────────────────────── */
+.light {
+  --background: #f8fafc;
+  --foreground: #020617;
+  --primary: #16a34a;
+  --primary-dark: #15803d;
+  --card: rgba(255, 255, 255, 0.7);
+  --card-hover: rgba(255, 255, 255, 0.9);
+  --border: rgba(0, 0, 0, 0.08);
+  --border-hover: rgba(0, 0, 0, 0.15);
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --input-bg: rgba(255, 255, 255, 0.8);
+  --overlay: rgba(248, 250, 252, 0.85);
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --shadow-color: rgba(15, 23, 42, 0.15);
+  --map-tiles: light;
+  --dot-color: rgba(0, 0, 0, 0.1);
+  --badge-bg: rgba(255, 255, 255, 0.9);
+  --score-bar-bg: #e2e8f0;
+  --glass-edge: rgba(255, 255, 255, 0.6);
+  --premium-gradient: linear-gradient(145deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.4) 100%);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), "Inter", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* ─── Theme-aware base classes ─────────────────────────── */
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
+  }
+
+  .glow-green {
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.15);
+  }
+
+  .gradient-green {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+  }
+
+  .theme-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 4px 6px -1px var(--shadow-color), inset 0 1px 0 0 var(--glass-edge);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .theme-card:hover {
+    background: var(--card-hover);
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-3d-soft);
+    transform: translateY(-2px);
+  }
+
+  .premium-glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid var(--border);
+    box-shadow: inset 0 1px 0 0 var(--glass-edge), 0 20px 40px -10px var(--shadow-color);
+  }
+
+  .text-3d {
+    text-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(255, 255, 255, 0.1);
+  }
+
+  .text-gradient-metallic {
+    background: linear-gradient(to bottom right, #ffffff 20%, #a1a1aa 80%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .dark .text-gradient-metallic {
+    background: linear-gradient(to bottom right, #ffffff 20%, #71717a 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .light .text-gradient-metallic {
+    background: linear-gradient(to bottom right, #0f172a 20%, #475569 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hover-3d-lift {
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+  }
+
+  .hover-3d-lift:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: var(--shadow-3d-heavy);
+  }
+
+  .theme-text {
+    color: var(--text-primary);
+  }
+
+  .theme-text-secondary {
+    color: var(--text-secondary);
+  }
+
+  .theme-bg {
+    background-color: var(--background);
+  }
+
+  .theme-input {
+    background: var(--input-bg);
+    border-color: var(--border);
+    color: var(--text-primary);
+    box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+  }
+}
+
+/* ─── Universal overrides for leaflet popups ──────────── */
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  background: var(--card) !important;
+  color: var(--foreground) !important;
+  box-shadow: 0 4px 12px var(--shadow-color) !important;
+}
+
+.leaflet-popup-content-wrapper {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.leaflet-container a.leaflet-popup-close-button {
+  color: var(--text-secondary);
+}
+
+.leaflet-container a.leaflet-popup-close-button:hover {
+  color: var(--foreground);
 }
