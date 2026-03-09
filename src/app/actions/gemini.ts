@@ -2,8 +2,11 @@
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+// @ts-expect-error - as requested, overriding default constructor signature
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "", {
+    apiVersion: "v1"
+});
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 export async function generateReportSummary(address: string, safetyScore: number, crimeIncidents: number, activePermits: number, newsSentiment: number) {
     try {
@@ -47,7 +50,7 @@ export async function generateTruthInsight() {
 export async function chatNeighborIQ(message: string, history: { role: string; parts: { text: string }[] }[], contextStats: string) {
     try {
         const chatModel = genAI.getGenerativeModel({
-            model: "gemini-1.5-flash-latest",
+            model: "gemini-1.5-flash",
             systemInstruction: `You are NeighborIQ, a civic AI assistant for Montgomery, Alabama. You help residents understand their neighborhood using official city data. 
 Be helpful, specific, and concise. If asked about safety, reference that crime data shows ${contextStats}. 
 If asked about development, reference that there are active permits nearby. No fluff.`
@@ -68,7 +71,7 @@ If asked about development, reference that there are active permits nearby. No f
 
 export async function classifyIssuePhoto(base64Data: string, mimeType: string) {
     try {
-        const visionModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+        const visionModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
         const prompt = `Look at this photo of a city issue. 
 Classify it as one of: pothole, broken streetlight, graffiti, illegal dumping, damaged sidewalk, flooding, fallen tree, broken bench, other.
 Return JSON strictly in this format: {"type": "string", "confidence": number, "description": "string", "priority": "low"|"medium"|"high"}`;
