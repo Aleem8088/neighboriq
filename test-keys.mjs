@@ -24,8 +24,8 @@ async function testKeys() {
             throw new Error("Missing GEMINI_API_KEY in .env.local");
         }
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-        // Using gemini-1.5-flash as it is the standard model in the app
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        // Using gemini-1.5-flash-latest as it is the standard model in the app
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
         const result = await model.generateContent("Respond with the exact word 'SUCCESS'.");
         console.log("✅ Gemini API successful. Response:", result.response.text().trim());
     } catch (e) {
